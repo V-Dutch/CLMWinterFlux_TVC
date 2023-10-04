@@ -11,6 +11,7 @@
 cd 'D:\PhD Work\Data\Paper2Data_ToUpload\GitRepo_19.01.2023\TVCObs'
 FilteredObs = readtimetable('TVC_CLASSIC_ExtraFilter.csv');
 FilledObs = readtimetable('TVC_Carolina_2013_2020_full_v2.csv');
+NEE_avg_gCd = readtimetable('NEE_avg_gCd.csv');
 % cut both to start of 2020, gives 365 weeks and one day. Cut last day from
 % record because I'm not using that anyway ... However, computer thinks a
 % week has to be monday to monday, and doing that rather than tuesdays
@@ -18,7 +19,9 @@ FilledObs = readtimetable('TVC_Carolina_2013_2020_full_v2.csv');
 tr = timerange(datetime(2013,01,01),datetime(2019,12,31));
 FilteredObs = FilteredObs(tr,:);
 FilledObs = FilledObs(tr,:);
+NEE_avg_gCd = NEE_avg_gCd(tr,:);
 FilledObs_Weekly = retime(FilledObs,'weekly','mean');
+NEE_avg_gCd_Weekly = retime(NEE_avg_gCd,'weekly');
 
 % Jordan Keff
 
@@ -1670,11 +1673,12 @@ WeeklyMaxNEEUnc_1718 = WeeklyMaxNEEUnc(251:283);
 x = {'2017-08-01','2017-09-01','2017-10-01','2017-11-01','2017-12-01','2018-01-01','2018-02-01','2018-03-01','2018-04-01','2018-05-01','2018-06-01','2018-07-01','2018-08-01'};
 x = datenum(x);
 f = datenum(minPSI_20_J.Time);
-cd 'D:\PhD Work\Modelling\CLM\Output Data From CLM\Paper 2\GitRepo\TVC\Observations' % for shaded plot function
-figure()
-t = tiledlayout(3,1,'tilespacing', 'none');
-% tiledlayout(4,1,'tilespacing', 'compact');
-nexttile()
+cd 'D:\Work\Uni_Work\PHD\Modelling\CLM\Output Data From CLM\Paper 2\GitRepo\TVC\Observations' % for shaded plot function
+fig = figure();
+set(fig,'defaultLegendAutoUpdate','off');
+% t = tiledlayout(3,1,'tilespacing', 'none');
+tiledlayout(6,1,'tilespacing', 'none', 'padding', 'compact');
+nexttile([2 1])
 hold on
 errorbar(datenums_test(1:(end-1)),WeeklyMeanNEE_1718(1:(end-1)),WeeklyStdDevNEE_1718(1:(end-1)),'k','LineStyle','none')
 plot(datenums_test(1:(end-1)),WeeklyMeanNEE_1718(1:(end-1)),'kx','LineWidth',1.5) % majority of the averaging period for the last value is after snowmelt ... remove
@@ -1683,20 +1687,24 @@ datetick('x')
 hold off
 ylabel({'NEE'; '[g C m^2 day ^-1]'; ''; ''})
 % title('Winter 2017 - 18')
-ylim([-1 2])
+ylim([-1 5])
 xlim([SnowOn_1718_n SnowOff_1718_n])
 yticks([])
 xticks([])
+% xticklabels([])
 % text(736976, -1, '-1','FontSize', 14) %y axis labels (bc. issues)
 text(736977, 0, '0','FontSize', 14) %y axis labels (bc. issues)
 text(736977, 1, '1','FontSize', 14) %y axis labels (bc. issues)
 text(736977, 2, '2','FontSize', 14) %y axis labels (bc. issues)
-% text(736977, 3, '3','FontSize', 14) %y axis labels (bc. issues)
-% text(736977, 4, '4','FontSize', 12) %y axis labels (bc. issues)
-text(736982, -0.6, 'a)','FontSize', 16)
+text(736977, 3, '3','FontSize', 14) %y axis labels (bc. issues)
+text(736977, 4, '4','FontSize', 14) %y axis labels (bc. issues)
+text(736977, 5, '5','FontSize', 14) %y axis labels (bc. issues)
+text(736982, -0.5, 'a)','FontSize', 16)
 datetick('x','mmm yy', 'keeplimits', 'keepticks')
 set(gca,"FontSize",14)
-nexttile
+set(gca,'TickDir','in');
+box on
+nexttile ([2 1])
 % red tones = jordan
 a = plot(f,Run0_1500CT_Daily.SoilResp_CLM,'Color',[0.6350 0.0780 0.1840],'LineWidth', 1.25);
 hold on
@@ -1717,32 +1725,56 @@ e = shadedplot(f,minPSI_2000_S_MaxSR,minPSI_2000_S_MinSR,[0.5098 0.7961 0.6980],
 alpha(0.4)
 hold on
 plot(f,minPSI_2000_S.MedianSoilResp_ALLQ10,'Color',[0.5098 0.7961 0.6980],'LineWidth', 1.25);
+yline(0,'w') % cover it up before dashes, or dashed line will be overwritten by axis
+yline(0,'k:')
 hold off
 ylabel({'Soil Respiration'; '[g C m^2 day ^{-1}]'; ''; ''})
-ylim([0 5])
+ylim([-1 5])
 xlim([SnowOn_1718_n SnowOff_1718_n])
 leg = [a b(2) c(2) d(2) e(2)];
 legend(leg, {'Default CLM', 'Ψ_{min} = -2 MPa', 'Ψ_{min} = -20 MPa', 'Ψ_{min} = -200 MPa', 'Ψ_{min} = -2000 MPa'}, 'Location', 'NorthEast', 'NumColumns',2);
 legend boxoff
 yticks([])
-xticks([])
-% text(736977, 0, '0','FontSize', 12) %y axis labels (bc. issues)
+xticks(x)
+xticklabels([])
+text(736977, 0, '0','FontSize', 14) %y axis labels (bc. issues)
 text(736977, 1, '1','FontSize', 14) %y axis labels (bc. issues)
 text(736977, 2, '2','FontSize', 14) %y axis labels (bc. issues)
 text(736977, 3, '3','FontSize', 14) %y axis labels (bc. issues)
 text(736977, 4, '4','FontSize', 14) %y axis labels (bc. issues)
 text(736977, 5, '5','FontSize', 14) %y axis labels (bc. issues)
-% text(736977, 6, '6','FontSize', 12) %y axis labels (bc. issues)
-text(736982, 0.5, 'b)','FontSize', 16)
-set(gca,"FontSize",16)
+text(736982, -0.5, 'b)','FontSize', 16)
+set(gca,"FontSize",14)
+set(gca,'TickDir','in');
+grid off
+box on
+nexttile
+hold on
+plot(f,Run0_1500CT_Daily.SnowDepth_MSC_obs,'k','LineWidth',1.5);
+plot(f,Run0_1500CT_Daily.SnowDepth_CLM,'Color',[0.4940 0.1840 0.5560],'LineWidth',1.5);
+hold off
+legend({'Observed','CLM'},'Location','NorthWest');
+legend boxoff
+yticks([])
+xticks(x)
+xticklabels([])
+xlim([SnowOn_1718_n SnowOff_1718_n])
+ylabel({'Snow'; 'Depth [m]';'';''})
+% text(736977, 0, '0','FontSize', 14) %y axis labels (bc. issues)
+text(736973, 0.25, '0.25','FontSize', 14) %y axis labels (bc. issues)
+text(736975, 0.5, '0.5','FontSize', 14) %y axis labels (bc. issues)
+text(736982, 0.1, 'c)','FontSize', 16)
+set(gca,"FontSize",14)
+set(gca,'TickDir','in'); 
+box on
 nexttile
 % u = shadedplot(T,upperbound_SoilT,lowerbound_SoilT,[0.8078 0.6353 0.9922],[0.8078 0.6353 0.9922]); %IF are going to have daily simulations here, use daily rolling mean for obs?
 hold on
-u = plot(f,Run0_1500CT_Daily.SoilTemp_10cm_Obs,'k');
-v = plot(f,Run0_1500CT_Daily.SoilTemp_10cm_CLM,'Color',[0.6350 0.0780 0.1840]);%,'LineWidth',1.5)
-w = plot(f,Sturm_1500CT_Daily.SoilTemp_10cm_CLM,'Color',[0 0.2235 0.3705]);%,'LineWidth',1.5)
+u = plot(f,Run0_1500CT_Daily.SoilTemp_10cm_Obs,'k','LineWidth',1.5);
+v = plot(f,Run0_1500CT_Daily.SoilTemp_10cm_CLM,'Color',[0.6350 0.0780 0.1840],'LineWidth',1.5);
+w = plot(f,Sturm_1500CT_Daily.SoilTemp_10cm_CLM,'Color',[0 0.2235 0.3705],'LineWidth',1.5);
 leg = [u v w];
-legend(leg,{'Observed','CLM (Jordan)','CLM (Sturm)'}, 'Location', 'SouthEast');
+legend(leg,{'Observed','CLM (Jordan)','CLM (Sturm)'}, 'Location', 'SouthWest');
 legend boxoff
 ylim([-25 0]) % revisit
 % Convert to yyplot and add soil moisture???
@@ -1751,19 +1783,16 @@ yticks([])
 xticks(x)
 ylabel({'10cm Soil'; 'Temp [℃]'; ''; ''})
 text(736977, 0, '0','FontSize', 14) %y axis labels (bc. issues)
-% text(736976, -2, '-2','FontSize', 12) %y axis labels (bc. issues)
-text(736976, -5, '-5','FontSize', 14) %y axis labels (bc. issues)
-% text(736976, -6, '-6','FontSize', 12) %y axis labels (bc. issues)
-% text(736976, -8, '-8','FontSize', 12) %y axis labels (bc. issues)
+% text(736976, -5, '-5','FontSize', 14) %y axis labels (bc. issues)
 text(736975, -10, '-10','FontSize', 14) %y axis labels (bc. issues)
-% text(736975, -12, '-12','FontSize', 12) %y axis labels (bc. issues)
-text(736975, -15, '-15','FontSize', 14) %y axis labels (bc. issues)
+% text(736975, -15, '-15','FontSize', 14) %y axis labels (bc. issues)
 text(736975, -20, '-20','FontSize', 14) %y axis labels (bc. issues)
-text(736975, -25, '-25','FontSize', 14) %y axis labels (bc. issues)
-text(736982, -22, 'c)','FontSize', 16)
+% text(736975, -25, '-25','FontSize', 14) %y axis labels (bc. issues)
+text(736982, -22, 'd)','FontSize', 16)
 grid off
+box on
 xticklabels({'Aug 2017','Sep 2017','Oct 2017','Nov 2017','Dec 2017', 'Jan 2018', 'Feb 2018', 'Mar 2018', 'Apr 2018', 'May 2018', 'Jun 2018', 'Jul 2018', 'Aug 2018'})
-set(gca,"FontSize",16)
+set(gca,"FontSize",14)
 
 %% Fig 2. - Cumulative NEE (for CLM sensitivity test)
 Sturm_CumNEE_Winter1617_p = rot90(Sturm_CumNEE_Winter1617);
@@ -1876,7 +1905,7 @@ Resp_Jordan = reshape(Resp_Jordan, 4, 4)
 Q10_P = [1.5,2.5,5,7.5];
 minPSI_P = [-2, -20, -200, -2000];
 % Sort out colourmap first
-cd 'D:\PhD Work\MatLab\BrewerMap'
+cd 'D:\Work\Uni_Work\PHD\MatLab\BrewerMap'
 c_new = brewermap([],'GnBu');
 
 % Contour Plot 
@@ -2183,7 +2212,7 @@ RMSE_NEE_toplot_thw_1819 = rot90(reshape(RMSE_NEE_1819_thw, 4, 4),2);
 Q10_P = [1.5,2.5,5,7.5];
 minPSI_P = [-2, -20, -200, -2000];
 % Sort out colourmap first
-cd 'D:\PhD Work\MatLab\BrewerMap'
+cd 'D:\Work\Uni_Work\PHD\MatLab\BrewerMap'
 c_new = brewermap([],'GnBu');
 % note to self: log axis colourbar does not help
 
@@ -2814,7 +2843,7 @@ multcompare(stats_Q10_ANOVA_CumSumNEE_1819,'Alpha',0.001)
 
 %% Figure 5 - Cumulative plot with observations
 % plot
-cd 'D:\PhD Work\Modelling\CLM\Output Data From CLM\Paper 2\GitRepo\TVC\Observations' % for shaded plot command
+cd 'D:\Work\Uni_Work\PHD\Modelling\CLM\Output Data From CLM\Paper 2\GitRepo\TVC\Observations' % for shaded plot command
 % use datenums for shadedplot command
 T = datenum(Run0_1500CT_Daily.Time(1746:1976));
 t = datenum(FilledObs_Weekly.TIMESTAMP(250:283));
@@ -3235,6 +3264,50 @@ box off
 text(0.75, 3, 'c)') % add letter
 nexttile
 boxplot(NEEObs_1819_GF,'Colors', k,'Symbol','', 'Labels',{'Gapfilled Obs'}); 
-ylim([-1 3.5]) % Observed fluxes sometimes negative, modelled ones aren't ... unsure what to do about axis limits
+ylim([-1 3.5])
 box off
 yticks([])
+
+%% Soil Temp Profile for Reviewer response
+addpath 'D:\Work\Uni_Work\PHD\MatLab\BrewerMap'
+
+figure
+cmap = brewermap(11,'RdPu');
+cmap = flipud(cmap);
+set(0,'DefaultAxesColorOrder',cmap)
+t = tiledlayout(2,1)
+nexttile % Jordan
+hold on
+plot(f,Run0_1500CT_Daily.SoilPSI_1cm_CLM,'LineWidth',1.5);
+plot(f,Run0_1500CT_Daily.SoilPSI_26cm_CLM,'LineWidth',1.5);
+plot(f,Run0_1500CT_Daily.SoilPSI_40cm_CLM,'LineWidth',1.5);
+plot(f,Run0_1500CT_Daily.SoilPSI_80cm_CLM,'LineWidth',1.5);
+plot(f,Run0_1500CT_Daily.SoilPSI_136cm_CLM,'LineWidth',1.5);
+plot(f,Run0_1500CT_Daily.SoilPSI_170cm_CLM,'LineWidth',1.5);
+plot(f,Run0_1500CT_Daily.SoilPSI_250cm_CLM,'LineWidth',1.5);
+plot(f,Run0_1500CT_Daily.SoilPSI_427cm_CLM,'LineWidth',1.5);
+plot(f,Run0_1500CT_Daily.SoilPSI_595cm_CLM,'LineWidth',1.5);
+plot(f,Run0_1500CT_Daily.SoilPSI_803cm_CLM,'LineWidth',1.5);
+ylim([-25 0]) % revisit
+title('Soil Profile - Jordan')
+xlim([SnowOn_1718_n SnowOff_1718_n])
+datetick('x','KeepLimits')
+nexttile % Sturm
+hold on
+plot(f,Sturm_1500CT_Daily.SoilPSI_1cm_CLM,'LineWidth',1.5);
+plot(f,Sturm_1500CT_Daily.SoilPSI_26cm_CLM,'LineWidth',1.5);
+plot(f,Sturm_1500CT_Daily.SoilPSI_40cm_CLM,'LineWidth',1.5);
+plot(f,Sturm_1500CT_Daily.SoilPSI_80cm_CLM,'LineWidth',1.5);
+plot(f,Sturm_1500CT_Daily.SoilPSI_136cm_CLM,'LineWidth',1.5);
+plot(f,Sturm_1500CT_Daily.SoilPSI_170cm_CLM,'LineWidth',1.5);
+plot(f,Sturm_1500CT_Daily.SoilPSI_250cm_CLM,'LineWidth',1.5);
+plot(f,Sturm_1500CT_Daily.SoilPSI_427cm_CLM,'LineWidth',1.5);
+plot(f,Sturm_1500CT_Daily.SoilPSI_595cm_CLM,'LineWidth',1.5);
+plot(f,Sturm_1500CT_Daily.SoilPSI_803cm_CLM,'LineWidth',1.5);
+ylim([-25 0]) % revisit
+title('Soil Profile - Sturm')
+ylabel(t,'Soil Temp [℃]')
+xlim([SnowOn_1718_n SnowOff_1718_n])
+datetick('x','KeepLimits')
+legend({'10 cm','26 cm','0.4m','0.8m','1.4m','1.7m','2.5m','4.3m','6m','8m'},'Location','SouthEast','NumColumns',2)
+legend boxoff
